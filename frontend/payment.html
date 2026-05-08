@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment — SmartPark</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="brand">🚗 SmartPark</a>
+            <nav>
+                <a href="dashboard.html">← Dashboard</a>
+                <a href="#" onclick="logout()">Logout</a>
+            </nav>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Payments</h1>
+            <p>Pay for your bookings and view payment history.</p>
+        </div>
+
+        <div id="alert" class="alert"></div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;flex-wrap:wrap" class="pay-layout">
+            <!-- Pay -->
+            <div class="card">
+                <h3 style="margin-bottom:1.25rem">💳 Make Payment</h3>
+                <div class="form-group" id="grp-bid">
+                    <label>Booking ID</label>
+                    <input type="number" id="bookingId" placeholder="e.g. 5" min="1">
+                    <div class="error-msg">Enter a valid booking ID.</div>
+                </div>
+                <div class="form-group" id="grp-amt">
+                    <label>Amount (₹)</label>
+                    <input type="number" id="amount" placeholder="e.g. 150.00" min="0" step="0.01">
+                    <div class="error-msg">Enter a valid amount.</div>
+                </div>
+                <div class="form-group">
+                    <label>Payment Method</label>
+                    <select id="method">
+                        <option value="card">💳 Card</option>
+                        <option value="upi">📱 UPI</option>
+                        <option value="wallet">👛 Wallet</option>
+                        <option value="cash">💵 Cash</option>
+                    </select>
+                </div>
+                <button id="payBtn" class="btn btn-primary btn-block" onclick="pay()">Pay Now</button>
+            </div>
+
+            <!-- History -->
+            <div class="card">
+                <h3 style="margin-bottom:1.25rem">📜 Payment History</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Slot</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th></tr>
+                        </thead>
+                        <tbody id="historyBody">
+                            <tr><td colspan="5" style="text-align:center;color:var(--muted)">Loading…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @media (max-width: 640px) { .pay-layout { grid-template-columns: 1fr !important; } }
+    </style>
+
+    <script src="js/utils.js"></script>
+    <script>
+        if (!requireAuth()) throw new Error();
+
+        function logout() { clearAuth(); window.location.href = "login.html"; }
+
+        // Pre-fill from URL params if coming from dashboard
+        const params = new URLSearchParams(location.search);
+        if (params.get("booking")) document.getElementById("bookingId").value = params.get("booking");
+        if (params.get("amount"))  document.getElementById("amount").value   = params.get("amount");
+
+        async function pay() {
+            const bookingId = document.getElementById("bookingId").value;
+            const amount    = document.getElementById("amount").value;
+            const method    = document.getElementById("method").value;
+            const btn       = document.getElementById("payBtn");
+
+            ["grp-bid","grp-amt"].forEach(id => document.getElementById(id).classList.remove("has-error"));
+            let valid = true;
+            if (!bookingId || parseInt(bookingId) < 1) { document.getElementById("grp-bid").classList.add("has-error"); valid = false; }
+            if (!amount || parseFloat(amount) <= 0)    { document.getElementById("grp-amt").classList.add("has-error"); valid = false; }
+            if (!valid) return;
+
+            setLoading(btn, true);
+            const res = await apiFetch("/payment/pay", {
+                method: "POST",
+                body: JSON.stringify({ booking_id: parseInt(bookingId), amount: parseFloat(amount), method })
+            });
+            setLoading(btn, false);
+            if (!res) return;
+
+            if (res.ok) {
+                showAlert("alert", `✅ Payment successful! Ref: ${res.data.txn_ref}`, "success");
+                document.getElementById("bookingId").value = "";
+                document.getElementById("amount").value    = "";
+                loadHistory();
+            } else {
+                showAlert("alert", res.data.error || "Payment failed.", "error");
+            }
+        }
+
+        async function loadHistory() {
+            const tbody = document.getElementById("historyBody");
+            const res = await apiFetch("/payment/history");
+            if (!res || !res.ok) {
+                tbody.innerHTML = "<tr><td colspan='5' style='color:var(--danger)'>Failed to load.</td></tr>";
+                return;
+            }
+            if (!res.data.length) {
+                tbody.innerHTML = "<tr><td colspan='5' style='text-align:center;color:var(--muted)'>No payments yet.</td></tr>";
+                return;
+            }
+            tbody.innerHTML = res.data.map(p => `
+                <tr>
+                    <td>${p.slot_number}</td>
+                    <td>${fmtMoney(p.amount)}</td>
+                    <td>${p.method}</td>
+                    <td>${badge(p.status)}</td>
+                    <td style="font-size:.8rem">${fmtDate(p.paid_at)}</td>
+                </tr>
+            `).join("");
+        }
+
+        loadHistory();
+    </script>
+</body>
+</html>

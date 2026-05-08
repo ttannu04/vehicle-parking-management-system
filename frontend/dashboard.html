@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — SmartPark</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+
+        .tabs {
+            display: flex;
+            gap: .5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: .65rem 1rem;
+            font-size: .9rem;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        .book-form {
+            display: flex;
+            gap: .75rem;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            margin-bottom: 1.5rem;
+        }
+
+        .book-form .form-group {
+            flex: 1;
+            min-width: 170px;
+            margin-bottom: 0;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: .5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: .35rem .85rem;
+            border-radius: 99px;
+            font-size: .8rem;
+            font-weight: 600;
+            border: 1.5px solid var(--border);
+            background: #fff;
+            cursor: pointer;
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--muted);
+        }
+
+        .empty-state .icon {
+            font-size: 2.5rem;
+            margin-bottom: .75rem;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="container">
+
+            <a href="index.html" class="brand">
+                🚗 SmartPark
+            </a>
+
+            <nav>
+                <span id="welcomeMsg"
+                    style="font-size:.875rem;color:var(--muted)">
+                </span>
+
+                <a href="payment.html">Payments</a>
+
+                <a href="#" onclick="logout()">
+                    Logout
+                </a>
+            </nav>
+
+        </div>
+    </nav>
+
+    <!-- MAIN -->
+    <div class="container">
+
+        <div class="page-header">
+            <h1>Parking Dashboard</h1>
+            <p>Browse available slots and manage your bookings.</p>
+        </div>
+
+        <div id="alert" class="alert"></div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+
+            <button
+                class="tab-btn active"
+                onclick="switchTab('slots', this)"
+            >
+                🅿️ Available Slots
+            </button>
+
+            <button
+                class="tab-btn"
+                onclick="switchTab('bookings', this)"
+            >
+                📋 My Bookings
+            </button>
+
+        </div>
+
+        <!-- SLOTS TAB -->
+        <div id="tab-slots" class="tab-panel active">
+
+            <div class="book-form">
+
+                <div class="form-group">
+                    <label>Check-in</label>
+                    <input type="datetime-local" id="checkIn">
+                </div>
+
+                <div class="form-group">
+                    <label>Check-out</label>
+                    <input type="datetime-local" id="checkOut">
+                </div>
+
+                <div class="form-group">
+                    <label>Vehicle type</label>
+
+                    <select id="vtype">
+                        <option value="">All</option>
+                        <option value="car">Car</option>
+                        <option value="bike">Bike</option>
+                        <option value="truck">Truck</option>
+                    </select>
+
+                </div>
+
+                <button
+                    class="btn btn-outline"
+                    onclick="loadSlots()"
+                >
+                    🔍 Refresh
+                </button>
+
+            </div>
+
+            <div id="slotsGrid" class="slots-grid">
+                <p style="color:var(--muted)">Loading slots…</p>
+            </div>
+
+        </div>
+
+        <!-- BOOKINGS TAB -->
+        <div id="tab-bookings" class="tab-panel">
+
+            <div class="filter-bar">
+
+                <button
+                    class="filter-btn active"
+                    onclick="filterBookings('all', this)"
+                >
+                    All
+                </button>
+
+                <button
+                    class="filter-btn"
+                    onclick="filterBookings('booked', this)"
+                >
+                    Active
+                </button>
+
+                <button
+                    class="filter-btn"
+                    onclick="filterBookings('paid', this)"
+                >
+                    Paid
+                </button>
+
+                <button
+                    class="filter-btn"
+                    onclick="filterBookings('cancelled', this)"
+                >
+                    Cancelled
+                </button>
+
+            </div>
+
+            <div class="card">
+
+                <div class="table-wrap">
+
+                    <table id="bookingsTable">
+
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Slot</th>
+                                <th>Location</th>
+                                <th>Check-in</th>
+                                <th>Check-out</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="bookingsBody">
+                            <tr>
+                                <td colspan="7"
+                                    style="text-align:center;color:var(--muted)">
+                                    Loading…
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- MODAL -->
+    <div
+        id="modalOverlay"
+        style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;"
+    >
+
+        <div
+            class="card"
+            style="max-width:400px;width:90%;z-index:201;margin:auto;"
+            id="modal"
+        >
+
+            <h3 style="margin-bottom:1rem" id="modalTitle">
+                Confirm Booking
+            </h3>
+
+            <p
+                id="modalBody"
+                style="color:var(--muted);margin-bottom:1.5rem"
+            ></p>
+
+            <div
+                style="display:flex;gap:.75rem;justify-content:flex-end"
+            >
+
+                <button
+                    class="btn btn-outline"
+                    onclick="closeModal()"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    class="btn btn-primary"
+                    id="modalConfirmBtn"
+                    onclick="confirmBook()"
+                >
+                    Confirm
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="js/utils.js"></script>
+
+    <script>
+
+        // Protect route
+        if (!requireAuth()) {
+            throw new Error("Unauthenticated");
+        }
+
+        const user = getUser();
+
+        document.getElementById("welcomeMsg").textContent =
+            `Hi, ${user?.name || "User"}`;
+
+        let allBookings = [];
+
+        let pendingSlotId = null;
+
+        // Prevent XSS
+        function escapeHtml(str) {
+
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;");
+        }
+
+        // Logout
+        function logout() {
+
+            clearAuth();
+
+            window.location.href = "login.html";
+        }
+
+        // Switch Tabs
+        function switchTab(name, btn) {
+
+            document.querySelectorAll(".tab-panel")
+                .forEach(p => p.classList.remove("active"));
+
+            document.querySelectorAll(".tab-btn")
+                .forEach(b => b.classList.remove("active"));
+
+            document.getElementById("tab-" + name)
+                .classList.add("active");
+
+            btn.classList.add("active");
+
+            if (name === "bookings") {
+                loadBookings();
+            }
+        }
+
+        // LOAD SLOTS
+        async function loadSlots() {
+
+            const grid = document.getElementById("slotsGrid");
+
+            grid.innerHTML =
+                "<p style='color:var(--muted)'>Loading…</p>";
+
+            const res = await apiFetch("/booking/slots");
+
+            if (!res || !res.ok) {
+
+                grid.innerHTML =
+                    "<p style='color:var(--danger)'>Failed to load slots.</p>";
+
+                return;
+            }
+
+            const vtypeFilter =
+                document.getElementById("vtype").value;
+
+            const slots = res.data.filter(
+                s => !vtypeFilter || s.vehicle_type === vtypeFilter
+            );
+
+            if (!slots.length) {
+
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">🅿️</div>
+                        <p>No slots found.</p>
+                    </div>
+                `;
+
+                return;
+            }
+
+            grid.innerHTML = slots.map(s => `
+
+                <div class="slot-card ${s.status}">
+
+                    <div class="slot-number">
+                        Slot ${escapeHtml(s.slot_number)}
+                    </div>
+
+                    <div class="slot-meta">
+                        📍 ${escapeHtml(s.location)}
+                        &nbsp;|&nbsp;
+                        🚗 ${escapeHtml(s.vehicle_type)}
+                    </div>
+
+                    <div class="slot-rate">
+                        ₹${Number(s.hourly_rate).toFixed(2)} / hr
+                    </div>
+
+                    ${
+                        s.status === "available"
+
+                        ? `
+                            <button
+                                class="btn btn-success"
+                                style="width:100%"
+                                onclick="openModal(${s.id}, '${escapeHtml(s.slot_number)}', ${s.hourly_rate})"
+                            >
+                                Book Now
+                            </button>
+                        `
+
+                        : `
+                            <button
+                                class="btn btn-outline"
+                                style="width:100%"
+                                disabled
+                            >
+                                ${s.status}
+                            </button>
+                        `
+                    }
+
+                </div>
+
+            `).join("");
+        }
+
+        // OPEN MODAL
+        function openModal(slotId, slotNum, rate) {
+
+            const checkIn =
+                document.getElementById("checkIn").value;
+
+            const checkOut =
+                document.getElementById("checkOut").value;
+
+            if (!checkIn || !checkOut) {
+
+                showAlert(
+                    "alert",
+                    "Please select check-in and check-out times first.",
+                    "error"
+                );
+
+                return;
+            }
+
+            if (new Date(checkOut) <= new Date(checkIn)) {
+
+                showAlert(
+                    "alert",
+                    "Check-out must be after check-in.",
+                    "error"
+                );
+
+                return;
+            }
+
+            const hours =
+                (new Date(checkOut) - new Date(checkIn)) / 3600000;
+
+            const cost = (hours * rate).toFixed(2);
+
+            pendingSlotId = {
+                slotId,
+                checkIn,
+                checkOut
+            };
+
+            document.getElementById("modalTitle").textContent =
+                `Book Slot ${slotNum}`;
+
+            document.getElementById("modalBody").innerHTML = `
+                Duration:
+                <strong>${hours.toFixed(1)} hrs</strong>
+                <br>
+                Estimated cost:
+                <strong>₹${cost}</strong>
+            `;
+
+            document.getElementById("modalOverlay").style.display =
+                "flex";
+        }
+
+        // CLOSE MODAL
+        function closeModal() {
+
+            document.getElementById("modalOverlay").style.display =
+                "none";
+
+            pendingSlotId = null;
+        }
+
+        // CONFIRM BOOKING
+        async function confirmBook() {
+
+            if (!pendingSlotId) return;
+
+            const btn =
+                document.getElementById("modalConfirmBtn");
+
+            setLoading(btn, true);
+
+            const res = await apiFetch("/booking/book", {
+
+                method: "POST",
+
+                body: JSON.stringify({
+                    slot_id: pendingSlotId.slotId,
+                    check_in: pendingSlotId.checkIn,
+                    check_out: pendingSlotId.checkOut
+                })
+            });
+
+            setLoading(btn, false);
+
+            closeModal();
+
+            if (res && res.ok) {
+
+                showAlert(
+                    "alert",
+                    `Booking confirmed! ID: #${res.data.booking_id}`,
+                    "success"
+                );
+
+                loadSlots();
+
+            } else {
+
+                showAlert(
+                    "alert",
+                    res?.data?.error || "Booking failed.",
+                    "error"
+                );
+            }
+        }
+
+        // LOAD BOOKINGS
+        async function loadBookings() {
+
+            const tbody =
+                document.getElementById("bookingsBody");
+
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan='7'
+                        style='text-align:center;color:var(--muted)'>
+                        Loading…
+                    </td>
+                </tr>
+            `;
+
+            const res = await apiFetch("/user/bookings");
+
+            if (!res || !res.ok) {
+
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan='7'
+                            style='color:var(--danger)'>
+                            Failed to load.
+                        </td>
+                    </tr>
+                `;
+
+                return;
+            }
+
+            allBookings = res.data;
+
+            renderBookings(allBookings);
+        }
+
+        // FILTER BOOKINGS
+        function filterBookings(status, btn) {
+
+            document.querySelectorAll(".filter-btn")
+                .forEach(b => b.classList.remove("active"));
+
+            btn.classList.add("active");
+
+            const filtered =
+                status === "all"
+                ? allBookings
+                : allBookings.filter(b => b.status === status);
+
+            renderBookings(filtered);
+        }
+
+        // RENDER BOOKINGS
+        function renderBookings(list) {
+
+            const tbody =
+                document.getElementById("bookingsBody");
+
+            if (!list.length) {
+
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <div class="icon">📋</div>
+                                <p>No bookings found.</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+
+                return;
+            }
+
+            tbody.innerHTML = list.map(b => `
+
+                <tr>
+
+                    <td>#${b.id}</td>
+
+                    <td>
+                        <strong>
+                            ${escapeHtml(b.slot_number)}
+                        </strong>
+                    </td>
+
+                    <td>
+                        ${escapeHtml(b.location)}
+                    </td>
+
+                    <td>
+                        ${fmtDate(b.check_in)}
+                    </td>
+
+                    <td>
+                        ${fmtDate(b.check_out)}
+                    </td>
+
+                    <td>
+                        ${badge(b.status)}
+                    </td>
+
+                    <td>
+
+                        ${
+                            b.status === "cancelled"
+
+                            ? "Cancelled"
+
+                            : b.payment_status !== "paid"
+
+                            ? `
+                                <a
+                                    href="payment.html?booking=${b.id}&amount=${b.amount || 0}"
+                                    class="btn btn-primary"
+                                    style="padding:.3rem .7rem;font-size:.8rem"
+                                >
+                                    Pay
+                                </a>
+                            `
+
+                            : b.status === "booked"
+
+                            ? `
+                                <button
+                                    class="btn btn-danger"
+                                    style="padding:.3rem .7rem;font-size:.8rem"
+                                    onclick="cancelBooking(${b.id})"
+                                >
+                                    Cancel
+                                </button>
+                            `
+
+                            : "—"
+                        }
+
+                    </td>
+
+                </tr>
+
+            `).join("");
+        }
+
+        // CANCEL BOOKING
+        async function cancelBooking(id) {
+
+            if (!confirm("Cancel this booking?")) {
+                return;
+            }
+
+            const res = await apiFetch(
+                `/booking/${id}/cancel`,
+                {
+                    method: "DELETE"
+                }
+            );
+
+            if (res && res.ok) {
+
+                showAlert(
+                    "alert",
+                    "Booking cancelled.",
+                    "success"
+                );
+
+                loadBookings();
+
+            } else {
+
+                showAlert(
+                    "alert",
+                    res?.data?.error || "Cancellation failed.",
+                    "error"
+                );
+            }
+        }
+
+        // INIT
+        loadSlots();
+
+        // Local datetime fix
+        const now = new Date();
+
+        now.setMinutes(0, 0, 0);
+
+        const later = new Date(
+            now.getTime() + 3600000
+        );
+
+        document.getElementById("checkIn").value =
+            new Date(
+                now.getTime() - now.getTimezoneOffset() * 60000
+            )
+            .toISOString()
+            .slice(0,16);
+
+        document.getElementById("checkOut").value =
+            new Date(
+                later.getTime() - later.getTimezoneOffset() * 60000
+            )
+            .toISOString()
+            .slice(0,16);
+
+    </script>
+
+</body>
+</html>

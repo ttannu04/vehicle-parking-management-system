@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>SmartPark Admin</title>
+
+    <link rel="stylesheet" href="css/admin.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+</head>
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <div class="logo-box">SP</div>
+
+            <div>
+                <h2>SmartPark</h2>
+                <p>ADMIN PANEL</p>
+            </div>
+        </div>
+
+        <div class="menu-title">MAIN</div>
+
+        <button class="menu active" onclick="showSection('dashboard',this)">
+            <i class="ti ti-layout-dashboard"></i>
+            Dashboard
+        </button>
+
+        <button class="menu" onclick="showSection('bookings',this)">
+            <i class="ti ti-calendar-event"></i>
+            Bookings
+        </button>
+
+        <button class="menu" onclick="showSection('slots',this)">
+            <i class="ti ti-parking"></i>
+            Slots
+        </button>
+
+        <button class="menu" onclick="showSection('users',this)">
+            <i class="ti ti-users"></i>
+            Users
+        </button>
+
+        <div class="sidebar-bottom">
+            <div class="admin-box">
+                <div class="avatar">A</div>
+
+                <div>
+                    <h4>Admin</h4>
+                    <p>Super Admin</p>
+                </div>
+            </div>
+
+            <button class="logout-btn" onclick="logout()">
+                <i class="ti ti-logout"></i>
+            </button>
+        </div>
+
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <!-- TOPBAR -->
+        <div class="topbar">
+
+            <h1 id="page-title">Dashboard</h1>
+
+            <div class="live-box">
+                <span class="dot"></span>
+                Live
+            </div>
+
+        </div>
+
+        <!-- DASHBOARD -->
+        <section id="dashboard" class="page active">
+
+            <div class="cards">
+
+                <div class="card">
+                    <div class="icon green">
+                        <i class="ti ti-parking"></i>
+                    </div>
+
+                    <h3>Total Slots</h3>
+
+                    <h2 id="totalSlots">0</h2>
+                </div>
+
+                <div class="card">
+                    <div class="icon blue">
+                        <i class="ti ti-circle-check"></i>
+                    </div>
+
+                    <h3>Available</h3>
+
+                    <h2 id="availableSlots">0</h2>
+                </div>
+
+                <div class="card">
+                    <div class="icon orange">
+                        <i class="ti ti-calendar-event"></i>
+                    </div>
+
+                    <h3>Bookings</h3>
+
+                    <h2 id="totalBookings">0</h2>
+                </div>
+
+                <div class="card">
+                    <div class="icon purple">
+                        <i class="ti ti-currency-rupee"></i>
+                    </div>
+
+                    <h3>Revenue</h3>
+
+                    <h2 id="totalRevenue">₹0</h2>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- BOOKINGS -->
+        <section id="bookings" class="page">
+
+            <div class="table-box">
+
+                <div class="table-header">
+                    <h2>All Bookings</h2>
+
+                    <button onclick="loadBookings()">
+                        Refresh
+                    </button>
+                </div>
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Slot</th>
+                            <th>Check In</th>
+                            <th>Check Out</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="bookingsBody"></tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+        <!-- SLOTS -->
+        <section id="slots" class="page">
+
+            <div class="table-box">
+
+                <div class="table-header">
+
+                    <h2>Parking Slots</h2>
+
+                    <button onclick="loadSlots()">
+                        Refresh
+                    </button>
+
+                </div>
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Slot</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="slotsBody"></tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+        <!-- USERS -->
+        <section id="users" class="page">
+
+            <div class="table-box">
+
+                <div class="table-header">
+                    <h2>Users</h2>
+
+                    <button onclick="loadUsers()">
+                        Refresh
+                    </button>
+                </div>
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="usersBody"></tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="js/admin.js"></script>
+
+</body>
+</html>

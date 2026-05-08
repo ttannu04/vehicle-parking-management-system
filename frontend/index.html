@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartPark — Vehicle Parking Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .hero {
+            text-align: center;
+            padding: 5rem 1rem 4rem;
+        }
+        .hero h1 { font-size: 2.75rem; font-weight: 800; line-height: 1.15; margin-bottom: 1rem; }
+        .hero h1 span { color: var(--primary); }
+        .hero p { font-size: 1.15rem; color: var(--muted); max-width: 520px; margin: 0 auto 2rem; }
+        .hero .cta-group { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .features { padding: 3rem 0 5rem; }
+        .features h2 { text-align: center; font-size: 1.6rem; margin-bottom: 2rem; }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5rem; }
+        .feature-card { text-align: center; padding: 2rem 1.5rem; }
+        .feature-card .icon { font-size: 2.5rem; margin-bottom: 1rem; }
+        .feature-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: .5rem; }
+        .feature-card p { font-size: .875rem; color: var(--muted); }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="brand">🚗 SmartPark</a>
+            <nav>
+                <a href="login.html">Login</a>
+                <a href="register.html" class="btn btn-primary">Sign Up</a>
+            </nav>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="hero">
+            <h1>Parking Made <span>Smart &amp; Simple</span></h1>
+            <p>Book, manage, and pay for parking spots in real-time. No more circling. No more waiting.</p>
+            <div class="cta-group">
+                <a href="register.html" class="btn btn-primary">Get Started Free</a>
+                <a href="login.html" class="btn btn-outline">Sign In</a>
+            </div>
+        </div>
+
+        <section class="features">
+            <h2>Everything you need</h2>
+            <div class="features-grid">
+                <div class="card feature-card">
+                    <div class="icon">📍</div>
+                    <h3>Real-time Availability</h3>
+                    <p>See available slots instantly. Book before you arrive.</p>
+                </div>
+                <div class="card feature-card">
+                    <div class="icon">🔒</div>
+                    <h3>Secure Booking</h3>
+                    <p>Your data is protected with JWT authentication and encrypted passwords.</p>
+                </div>
+                <div class="card feature-card">
+                    <div class="icon">💳</div>
+                    <h3>Easy Payments</h3>
+                    <p>Pay via card, UPI, or wallet. Track every transaction.</p>
+                </div>
+                <div class="card feature-card">
+                    <div class="icon">📊</div>
+                    <h3>Admin Dashboard</h3>
+                    <p>Full control over slots, bookings, and revenue analytics.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

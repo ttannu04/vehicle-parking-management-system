@@ -1,0 +1,276 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Inter',sans-serif;
+    background:#0d0d0d;
+    color:white;
+}
+
+.layout{
+    display:flex;
+    min-height:100vh;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+    width:260px;
+    background:#111;
+    border-right:1px solid #222;
+    display:flex;
+    flex-direction:column;
+    padding:20px;
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    margin-bottom:40px;
+}
+
+.logo-box{
+    width:50px;
+    height:50px;
+    border-radius:12px;
+    background:white;
+    color:black;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-weight:800;
+}
+
+.logo h2{
+    font-size:24px;
+}
+
+.logo p{
+    color:#777;
+    font-size:12px;
+}
+
+.menu-title{
+    color:#777;
+    margin-bottom:10px;
+    font-size:12px;
+}
+
+.menu{
+    width:100%;
+    background:none;
+    border:1px solid #222;
+    color:white;
+    padding:15px;
+    border-radius:14px;
+    margin-bottom:10px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:16px;
+}
+
+.menu:hover{
+    background:#191919;
+}
+
+.menu.active{
+    background:#242424;
+}
+
+.sidebar-bottom{
+    margin-top:auto;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.admin-box{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.avatar{
+    width:45px;
+    height:45px;
+    border-radius:50%;
+    background:#5d5fef;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-weight:700;
+}
+
+.logout-btn{
+    width:45px;
+    height:45px;
+    border:none;
+    background:#1c1c1c;
+    color:white;
+    border-radius:12px;
+    cursor:pointer;
+}
+
+/* MAIN */
+
+.main{
+    flex:1;
+    padding:30px;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+}
+
+.live-box{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:#999;
+}
+
+.dot{
+    width:10px;
+    height:10px;
+    background:#00d26a;
+    border-radius:50%;
+}
+
+/* CARDS */
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+}
+
+.card{
+    background:#141414;
+    border:1px solid #222;
+    padding:25px;
+    border-radius:20px;
+}
+
+.card h3{
+    color:#777;
+    margin:15px 0;
+}
+
+.card h2{
+    font-size:38px;
+}
+
+.icon{
+    width:55px;
+    height:55px;
+    border-radius:14px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:24px;
+}
+
+.green{
+    background:#103524;
+    color:#00d26a;
+}
+
+.blue{
+    background:#142038;
+    color:#4a8cff;
+}
+
+.orange{
+    background:#382313;
+    color:#ff9330;
+}
+
+.purple{
+    background:#22193b;
+    color:#9d7dff;
+}
+
+/* TABLE */
+
+.table-box{
+    background:#141414;
+    border:1px solid #222;
+    border-radius:20px;
+    overflow:hidden;
+}
+
+.table-header{
+    padding:20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.table-header button{
+    background:#5d5fef;
+    border:none;
+    color:white;
+    padding:10px 18px;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+thead{
+    background:#1b1b1b;
+}
+
+th,td{
+    padding:18px;
+    text-align:left;
+}
+
+tbody tr{
+    border-top:1px solid #222;
+}
+
+tbody tr:hover{
+    background:#1a1a1a;
+}
+
+.page{
+    display:none;
+}
+
+.page.active{
+    display:block;
+}
+
+.status{
+    padding:8px 14px;
+    border-radius:30px;
+    font-size:13px;
+}
+
+.confirmed{
+    background:#113822;
+    color:#00d26a;
+}
+
+.pending{
+    background:#382313;
+    color:#ff9330;
+}
+
+.cancelled{
+    background:#3d1820;
+    color:#ff5c7c;
+}
