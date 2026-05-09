@@ -2,7 +2,7 @@
 // Shared Utilities
 // ============================================================
 
-const API = "http://localhost:3000/api";
+const API = "https://vehicle-parking-management-system-2-8cqz.onrender.com/api";
 
 // ── Token Helpers ────────────────────────────────────────────
 function getToken() {
