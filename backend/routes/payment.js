@@ -13,9 +13,7 @@ function validate(req, res) {
     return true;
 }
 
-// ── POST /api/payment/pay ─────────────────────────────────────────────────────
-// In a real app you would integrate Stripe/Razorpay here.
-// This endpoint simulates a successful payment record after the gateway confirms.
+// ── POST /api/payment/pay ─────────────────────────────────────
 router.post(
     "/pay",
     authenticate,
@@ -44,6 +42,7 @@ router.post(
             if (booking.length === 0) {
                 return res.status(404).json({ error: "Booking not found." });
             }
+
             if (booking[0].status === "cancelled") {
                 return res.status(400).json({ error: "Cannot pay for a cancelled booking." });
             }
@@ -53,23 +52,24 @@ router.post(
                 "SELECT id FROM payments WHERE booking_id = ? AND status = 'paid'",
                 [booking_id]
             );
+
             if (existing.length > 0) {
                 return res.status(409).json({ error: "Booking already paid." });
             }
 
-            // Record payment
-            // In production: call payment gateway first, then record on success
+            // Generate transaction reference
             const txn_ref = `TXN-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 
+            // Record payment
             const [result] = await db.query(
                 `INSERT INTO payments (booking_id, amount, method, status, txn_ref)
                  VALUES (?, ?, ?, 'paid', ?)`,
                 [booking_id, amount, method, txn_ref]
             );
 
-            // Mark booking as paid
+            // ✅ Use 'confirmed' status which exists in the ENUM
             await db.query(
-                "UPDATE bookings SET status = 'paid' WHERE id = ?",
+                "UPDATE bookings SET status = 'confirmed' WHERE id = ?",
                 [booking_id]
             );
 
@@ -78,6 +78,7 @@ router.post(
                 payment_id: result.insertId,
                 txn_ref
             });
+
         } catch (err) {
             console.error("Payment error:", err);
             res.status(500).json({ error: "Payment failed. Please try again." });
@@ -85,14 +86,14 @@ router.post(
     }
 );
 
-// ── GET /api/payment/history ──────────────────────────────────────────────────
+// ── GET /api/payment/history ──────────────────────────────────
 router.get("/history", authenticate, async (req, res) => {
     try {
         const [rows] = await db.query(
             `SELECT p.id, p.amount, p.method, p.status, p.txn_ref, p.paid_at,
                     b.check_in, b.check_out, ps.slot_number
              FROM payments p
-             JOIN bookings     b  ON b.id  = p.booking_id
+             JOIN bookings b ON b.id = p.booking_id
              JOIN parking_slots ps ON ps.id = b.slot_id
              WHERE b.user_id = ?
              ORDER BY p.paid_at DESC`,
