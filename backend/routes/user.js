@@ -58,7 +58,6 @@ router.post("/register", registerRules, async (req, res) => {
 
     try {
 
-        // Check existing user
         const [existing] = await db.query(
             "SELECT id FROM users WHERE email = ?",
             [email]
@@ -70,10 +69,8 @@ router.post("/register", registerRules, async (req, res) => {
             });
         }
 
-        // Hash password
         const hashedPassword = await bcrypt.hash(password, 12);
 
-        // Insert user
         await db.query(
             "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)",
             [name, email, hashedPassword, "user"]
@@ -107,46 +104,29 @@ router.post("/login", loginRules, async (req, res) => {
             [email]
         );
 
-        // Generic error for security
         const GENERIC_ERROR = "Invalid email or password.";
 
         if (rows.length === 0) {
-            return res.status(401).json({
-                error: GENERIC_ERROR
-            });
+            return res.status(401).json({ error: GENERIC_ERROR });
         }
 
         const user = rows[0];
 
-        // Compare password
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
-            return res.status(401).json({
-                error: GENERIC_ERROR
-            });
+            return res.status(401).json({ error: GENERIC_ERROR });
         }
 
-        // JWT Secret check
         if (!process.env.JWT_SECRET) {
-
             console.error("❌ JWT_SECRET missing in .env");
-
-            return res.status(500).json({
-                error: "Server configuration error"
-            });
+            return res.status(500).json({ error: "Server configuration error" });
         }
 
-        // Create token
         const token = jwt.sign(
-            {
-                id: user.id,
-                role: user.role
-            },
+            { id: user.id, role: user.role },
             process.env.JWT_SECRET,
-            {
-                expiresIn: process.env.JWT_EXPIRES_IN || "24h"
-            }
+            { expiresIn: process.env.JWT_EXPIRES_IN || "24h" }
         );
 
         return res.status(200).json({
@@ -164,9 +144,7 @@ router.post("/login", loginRules, async (req, res) => {
 
         console.error("🔥 Login Error:", err);
 
-        return res.status(500).json({
-            error: "Login failed"
-        });
+        return res.status(500).json({ error: "Login failed" });
     }
 });
 
@@ -181,9 +159,7 @@ router.get("/profile", authenticate, async (req, res) => {
         );
 
         if (rows.length === 0) {
-            return res.status(404).json({
-                error: "User not found."
-            });
+            return res.status(404).json({ error: "User not found." });
         }
 
         return res.json(rows[0]);
@@ -192,9 +168,7 @@ router.get("/profile", authenticate, async (req, res) => {
 
         console.error("🔥 Profile Error:", err);
 
-        return res.status(500).json({
-            error: "Could not fetch profile"
-        });
+        return res.status(500).json({ error: "Could not fetch profile" });
     }
 });
 
@@ -207,12 +181,13 @@ router.get("/bookings", authenticate, async (req, res) => {
             `SELECT 
                 b.id,
                 b.status,
-                b.booked_at,
+                b.created_at AS booked_at,
                 b.check_in,
                 b.check_out,
+                b.total_amount AS amount,
                 ps.slot_number,
                 ps.location,
-                p.amount,
+                p.amount AS payment_amount,
                 p.status AS payment_status
             FROM bookings b
             JOIN parking_slots ps 
@@ -220,7 +195,7 @@ router.get("/bookings", authenticate, async (req, res) => {
             LEFT JOIN payments p 
                 ON p.booking_id = b.id
             WHERE b.user_id = ?
-            ORDER BY b.booked_at DESC`,
+            ORDER BY b.created_at DESC`,
             [req.user.id]
         );
 
@@ -230,9 +205,7 @@ router.get("/bookings", authenticate, async (req, res) => {
 
         console.error("🔥 Bookings Error:", err);
 
-        return res.status(500).json({
-            error: "Could not fetch bookings"
-        });
+        return res.status(500).json({ error: "Could not fetch bookings" });
     }
 });
 
